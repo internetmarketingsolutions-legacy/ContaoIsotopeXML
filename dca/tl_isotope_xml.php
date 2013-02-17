@@ -107,7 +107,11 @@ class tl_isotope_xml extends Backend
             $this->addProductToDOMDocument($arrProduct, $arrFieldsPerProductTypes, $dc);
         }
 
-        echo $this->domDocument->saveXML();die();
+        header('Content-type: text/xml');
+        header('Content-Disposition: attachment; filename="isotope-products.xml"');
+
+        echo $this->domDocument->saveXML();
+        die();
     }
 
     /**
