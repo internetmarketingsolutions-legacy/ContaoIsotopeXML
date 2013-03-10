@@ -1,5 +1,5 @@
 {
-    "name": "dominikzogg/isotope-xml",
+    "name": "internetmarketingsolutions/isotope-xml",
     "type": "contao-module",
     "description": "saferpay payment modul for isotope ecommerce based on payment/saferpay",
     "keywords": ["contao", "isotope", "ecommerce", "xml", "export", "import"],
