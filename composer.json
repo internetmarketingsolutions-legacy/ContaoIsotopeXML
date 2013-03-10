@@ -1,0 +1,27 @@
+{
+    "name": "dominikzogg/isotope-xml",
+    "type": "contao-module",
+    "description": "saferpay payment modul for isotope ecommerce based on payment/saferpay",
+    "keywords": ["contao", "isotope", "ecommerce", "xml", "export", "import"],
+    "license": "LGPLv3",
+    "authors": [
+        {
+            "name": "Dominik Zogg",
+            "email": "dominik.zogg@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.4",
+        "contao/core": "2.11.*"
+    },
+    "autoload": {
+        "classmap": ["src/"]
+    },
+    "extra": {
+        "contao": {
+            "symlinks": {
+                "src/system/modules/isotope_xml": "system/modules/isotope_xml"
+            }
+        }
+    }
+}
