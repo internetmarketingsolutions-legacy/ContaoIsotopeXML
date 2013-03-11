@@ -65,7 +65,7 @@ class IsotopeXMLExport extends Backend
 
         // add xmlns attribute
         $objIsotopeNodeXmlNs = $this->domDocument->createAttribute('xmlns');
-        $objIsotopeNodeXmlNs->value = 'http://www.isotopeecommerce.com/schema';
+        $objIsotopeNodeXmlNs->value = 'http://www.isotopeecommerce.com';
         $objIsotopeNode->appendChild($objIsotopeNodeXmlNs);
 
         // add xmlns:xsi attribute
@@ -75,7 +75,7 @@ class IsotopeXMLExport extends Backend
 
         // add xsi:schemaLocation attribute
         $objIsotopeNodeXsiSchemaLocation = $this->domDocument->createAttribute('xsi:schemaLocation');
-        $objIsotopeNodeXsiSchemaLocation->value = 'http://www.isotopeecommerce.com/schema https://shop.1-3-5.ch/contao-isotope-xml.xsd';
+        $objIsotopeNodeXsiSchemaLocation->value = 'http://www.isotopeecommerce.com https://shop.1-3-5.ch/contao-isotope-xml.xsd';
         $objIsotopeNode->appendChild($objIsotopeNodeXsiSchemaLocation);
 
         // append node to document
