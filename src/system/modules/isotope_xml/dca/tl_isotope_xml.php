@@ -84,8 +84,8 @@ class tl_isotope_xml extends Backend
             // check if its an export call
             if($this->Input->post('submit_exportButton'))
             {
-                $objIsotopeExport = new IsotopeXMLExport();
-                $objIsotopeExport->export($dc);
+                $objIsotopeXMLExport = new IsotopeXMLExport();
+                $objIsotopeXMLExport->create($dc);
             }
         }
 	}
