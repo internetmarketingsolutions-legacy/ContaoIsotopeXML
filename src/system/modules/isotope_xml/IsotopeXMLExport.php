@@ -27,7 +27,7 @@
  * @license    LGPLv3
  */
 
-class IsotopeXMLExport extends Backend
+class IsotopeXMLExport extends IsotopeXML
 {
 	/**
      * @var DOMDocument
@@ -39,7 +39,7 @@ class IsotopeXMLExport extends Backend
      */
     protected $dataContainer;
 
-    public function export(DataContainer $dc)
+    public function create(DataContainer $dc)
     {
         // assign data container
         $this->dataContainer = $dc;
@@ -62,179 +62,29 @@ class IsotopeXMLExport extends Backend
     {
         // define isotope node
         $objIsotopeNode = $this->domDocument->createElement('isotope');
-
-        // add xmlns attribute
-        $objIsotopeNodeXmlNs = $this->domDocument->createAttribute('xmlns');
-        $objIsotopeNodeXmlNs->value = 'http://www.isotopeecommerce.com';
-        $objIsotopeNode->appendChild($objIsotopeNodeXmlNs);
-
-        // add xmlns:xsi attribute
-        $objIsotopeNodeXmlNsXsi = $this->domDocument->createAttribute('xmlns:xsi');
-        $objIsotopeNodeXmlNsXsi->value = 'http://www.w3.org/2001/XMLSchema-instance';
-        $objIsotopeNode->appendChild($objIsotopeNodeXmlNsXsi);
-
-        // add xsi:schemaLocation attribute
-        $objIsotopeNodeXsiSchemaLocation = $this->domDocument->createAttribute('xsi:schemaLocation');
-        $objIsotopeNodeXsiSchemaLocation->value = 'http://www.isotopeecommerce.com https://shop.1-3-5.ch/contao-isotope-xml.xsd';
-        $objIsotopeNode->appendChild($objIsotopeNodeXsiSchemaLocation);
-
-        // append node to document
         $this->domDocument->appendChild($objIsotopeNode);
+
+        // add attributes
+        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xmlns', 'http://www.isotopeecommerce.com');
+        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xsi:schemaLocation', 'http://www.isotopeecommerce.com https://shop.1-3-5.ch/contao-isotope-xml.xsd');
 
         $this->addProductsNode($objIsotopeNode);
     }
 
     protected function addProductsNode(DOMNode $objIsotopeNode)
     {
-        // define products node
-        $objProductsNode = $this->domDocument->createElement('products');
-
-        // append node to isotope node
-        $objIsotopeNode->appendChild($objProductsNode);
-
         // get the fields per product type
         $arrFieldsPerProductTypes = $this->getFieldsPerProductTypes();
+
+        // define products node
+        $objProductsNode = $this->domDocument->createElement('products');
+        $objIsotopeNode->appendChild($objProductsNode);
 
         foreach($this->getProducts() as $arrProduct)
         {
             $this->addProductToDOMDocument($objProductsNode, $arrProduct, $arrFieldsPerProductTypes);
         }
-    }
-
-    /**
-     * @param array $arrProductTypeIds
-     * @return array
-     */
-    protected function getFieldsPerProductTypes(array $arrProductTypeIds = array())
-    {
-        if(count($arrProductTypeIds) == 0)
-        {
-            $arrProductTypeIds = $this->getAllUsedProductTypeIds();
-        }
-
-        // get all attributes of product types
-        $arrAttributesPerProductTypes = $this->getProductTypeAttributes($arrProductTypeIds);
-
-        // get the active fields behind
-        return $this->getActiveProductFieldsPerProductTypes($arrAttributesPerProductTypes);
-    }
-
-    /**
-     * @return array
-     */
-    protected function getAllUsedProductTypeIds()
-    {
-        $arrProductTypeIds = array();
-
-        $objProduct = $this
-            ->Database
-            ->query("
-                SELECT
-                    type
-                FROM
-                    tl_iso_products
-                GROUP BY
-                    type
-                ORDER BY
-                    type
-            ")
-        ;
-
-        while($objProduct->next())
-        {
-            $arrProductTypeIds[] = $objProduct->type;
-        }
-
-        return $arrProductTypeIds;
-    }
-
-    /**
-     * @param array
-     * @return array
-     */
-    protected function getProductTypeAttributes(array $arrProductTypeIds)
-    {
-        $arrAttributesPerProductType = array();
-
-        $objProductType = $this
-            ->Database
-            ->query("
-                SELECT
-                    id,
-                    attributes
-                FROM
-                    tl_iso_producttypes
-                WHERE
-                    id IN(" . implode(',', $arrProductTypeIds) . ")
-            ")
-        ;
-
-        while($objProductType->next())
-        {
-            $arrAttributesPerProductType[$objProductType->id] = unserialize($objProductType->attributes);
-        }
-
-        return $arrAttributesPerProductType;
-    }
-
-    /**
-     * @param array $arrAttributesPerProductTypes
-     * @return array
-     */
-    protected function getActiveProductFieldsPerProductTypes(array $arrAttributesPerProductTypes)
-    {
-        // alias for readability
-        $arrProductFields = &$GLOBALS['TL_DCA']['tl_iso_products']['fields'];
-
-        $arrActiveProductFieldsPerProductTypes = array();
-
-        foreach($arrAttributesPerProductTypes as $intProductTypeId => $arrProductTypeFields)
-        {
-            // fix sorting based on the position value of the field
-            uasort($arrProductTypeFields, function($a, $b){
-                if($a['position'] == $b['position']) { return 0; }
-                return ($a['position'] < $b['position']) ? -1 : 1;
-            });
-
-            foreach($arrProductTypeFields as $strFieldName => $arrProductField)
-            {
-                if($arrProductField['enabled'] && array_key_exists($strFieldName, $arrProductFields))
-                {
-                    $arrActiveProductFieldsPerProductTypes[$intProductTypeId][$strFieldName] = $arrProductFields[$strFieldName];
-                }
-            }
-        }
-
-        return $arrActiveProductFieldsPerProductTypes;
-    }
-
-    /**
-     * @param array $arrProductIds
-     * @return array
-     */
-    protected function getProducts(array $arrProductIds = array())
-    {
-        $arrProducts = array();
-
-        $objProduct = $this
-            ->Database
-            ->query("
-                SELECT
-                    *
-                FROM
-                    tl_iso_products
-                WHERE
-                    language = ''
-                " . (count($arrProductIds) == 0 ? "" : "AND id IN(" . implode(',', $arrProductIds) . ")") . "
-            ")
-        ;
-
-        while($objProduct->next())
-        {
-            $arrProducts[$objProduct->id] = $objProduct->row();
-        }
-
-        return $arrProducts;
     }
 
     /**
@@ -398,13 +248,9 @@ class IsotopeXMLExport extends Backend
 
         $arrFieldValue = unserialize($mixFieldValue);
 
-        foreach($arrFieldValue as $mixKey => $mixvalue)
+        foreach($arrFieldValue as $mixKey => $mixValue)
         {
-            $strAttributeName = is_numeric($mixKey) ? 'numeric-' . $mixKey : $mixKey;
-
-            $objAttribute = $this->domDocument->createAttribute($strAttributeName);
-            $objAttribute->nodeValue = $mixvalue;
-            $objNode->appendChild($objAttribute);
+            self::addAttributeToNode($this->domDocument, $objNode, $mixKey, $mixValue);
         }
 
         return $objNode;
@@ -424,77 +270,56 @@ class IsotopeXMLExport extends Backend
 
         foreach($arrFieldValue as $arrMedia)
         {
-            $objSubNode = $this->domDocument->createElement(substr($strFieldName, 0, -1));
-
-            foreach($arrMedia as $mixKey => $mixvalue)
-            {
-                $strAttributeName = is_numeric($mixKey) ? 'numeric-' . $mixKey : $mixKey;
-                $objAttribute = $this->domDocument->createAttribute($strAttributeName);
-                $objAttribute->nodeValue = $mixvalue;
-                $objSubNode->appendChild($objAttribute);
-            }
-
+            $objSubNode = $this->domDocument->createElement(self::englishSingular($strFieldName));
             $objNode->appendChild($objSubNode);
+
+            foreach($arrMedia as $mixKey => $mixValue)
+            {
+                self::addAttributeToNode($this->domDocument, $objSubNode, $mixKey, $mixValue);
+            }
         }
 
         return $objNode;
     }
 
     /**
-     * @param array $arrFieldDefinition
-     * @return array
-     */
-    protected function getFieldOptions(array $arrFieldDefinition)
-    {
-        // simple option array
-        if(array_key_exists('options', $arrFieldDefinition))
-        {
-            return $arrFieldDefinition['options'];
-        }
-
-        // callback function to get the options
-        if(array_key_exists('options_callback', $arrFieldDefinition))
-        {
-            $arrCallback = &$arrFieldDefinition['options_callback'];
-            $objCallback = method_exists($arrCallback[0], 'getInstance') ? $arrCallback[0]::getInstance() : new $arrCallback[0];
-            return call_user_func_array(array($objCallback, $arrCallback[1]), array($this->dataContainer));
-        }
-
-        // foreign key to get the options (example: tl_page.title)
-        if(array_key_exists('foreignKey', $arrFieldDefinition))
-        {
-            $arrTableAndField = explode('.', $arrFieldDefinition['foreignKey']);
-
-            $arrOptions = array();
-
-            $objTable = $this
-                ->Database
-                ->query("SELECT id,{$arrTableAndField[1]} FROM {$arrTableAndField[0]}")
-            ;
-
-            while($objTable->next())
-            {
-                $arrOptions[$objTable->id] = $objTable->$arrTableAndField[1];
-            }
-
-            return $arrOptions;
-        }
-
-        return array();
-    }
-
-    /**
-     * @param DOMNode$objNode
+     * @param DOMNode $objNode
      * @param array $arrOptions
      * @param array $arrFieldValues
      */
     protected function handleMultiOptions(DOMNode $objNode, array $arrOptions, array $arrFieldValues)
     {
+        $boolNumeric = false;
+
         foreach($arrOptions as $mixKey => $mixValue)
         {
-            $strAttributeName = is_numeric($mixKey) ? 'numeric-' . $mixKey : $mixKey;
+            if(is_numeric($mixKey))
+            {
+                $boolNumeric = true;
+            }
+        }
 
-            $objAttribute = $this->domDocument->createAttribute($strAttributeName);
+        if(!$boolNumeric)
+        {
+            $this->handleMultiOptionsWithStrinKeys($objNode, $arrOptions, $arrFieldValues);
+        }
+        else
+        {
+            $this->handleMultiOptionsWithNumericKeys($objNode, $arrOptions, $arrFieldValues);
+        }
+    }
+
+    /**
+     * @param DOMNode $objNode
+     * @param array $arrOptions
+     * @param array $arrFieldValues
+     */
+    protected function handleMultiOptionsWithStrinKeys(DOMNode $objNode, array $arrOptions, array $arrFieldValues)
+    {
+        foreach($arrOptions as $mixKey => $mixValue)
+        {
+            $objAttribute = $this->domDocument->createAttribute($mixKey);
+            $objNode->appendChild($objAttribute);
 
             if(in_array($mixKey, $arrFieldValues))
             {
@@ -504,9 +329,27 @@ class IsotopeXMLExport extends Backend
             {
                 $objAttribute->nodeValue = false;
             }
+        }
+    }
 
-            $objNode->appendChild($objAttribute);
-        } 
+    /**
+     * @param DOMNode $objNode
+     * @param array $arrOptions
+     * @param array $arrFieldValues
+     */
+    protected function handleMultiOptionsWithNumericKeys(DOMNode $objNode, array $arrOptions, array $arrFieldValues)
+    {
+        foreach($arrOptions as $mixKey => $mixValue)
+        {
+            if(in_array($mixKey, $arrFieldValues))
+            {                
+                $objSubNode = $this->domDocument->createElement(self::englishSingular($objNode->tagName));
+                $objNode->appendChild($objSubNode);
+
+                self::addAttributeToNode($this->domDocument, $objSubNode, 'key', $mixKey);
+                self::addAttributeToNode($this->domDocument, $objSubNode, 'value', $mixValue);                
+            }
+        }
     }
 
     /**
