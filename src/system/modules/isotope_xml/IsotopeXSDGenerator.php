@@ -50,12 +50,16 @@ class IsotopeXSDGenerator extends IsotopeXML
 
         // add xsd schema
         $this->addXSDSchemaNode();
+    }
 
-        header('Content-type: text/xml');
-        header('Content-Disposition: attachment; filename="isotope-products.xsd"');
-
-        echo $this->domDocument->saveXML();
-        die();
+    /**
+     * @param sting $strPath
+     */
+    public function save($strPath)
+    {
+        $objFile = new File($strPath);
+        $objFile->write($this->domDocument->saveXML());
+        $objFile->close();
     }
 
     protected function addXSDSchemaNode()
@@ -74,6 +78,9 @@ class IsotopeXSDGenerator extends IsotopeXML
 
         // add isotope xsd node
         $this->addIsotopeXSDNode($objXsdSchemaNode);
+        $this->addIsotopeXSDTypeNode($objXsdSchemaNode);
+        $this->addProductsXSDTypeNode($objXsdSchemaNode);
+        $this->addProductXSDTypeNode($objXsdSchemaNode);
     }
 
     protected function addIsotopeXSDNode(DOMNode $objXsdSchemaNode)
@@ -84,8 +91,6 @@ class IsotopeXSDGenerator extends IsotopeXML
         // add attributes
         self::addAttributeToNode($this->domDocument, $objIsotopeXsdNode, 'name', 'isotope');
         self::addAttributeToNode($this->domDocument, $objIsotopeXsdNode, 'type', 'isotope');
-
-        $this->addIsotopeXSDTypeNode($objIsotopeXsdNode);
     }
 
     protected function addIsotopeXSDTypeNode(DOMNode $objXsdSchemaNode)
@@ -107,5 +112,48 @@ class IsotopeXSDGenerator extends IsotopeXML
         self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeProductsNode, 'type', 'products');
         self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeProductsNode, 'minOccurs', 1);
         self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeProductsNode, 'maxOccurs', 1);
+    }
+
+    protected function addProductsXSDTypeNode(DOMNode $objXsdSchemaNode)
+    {
+        $objProductsXsdTypeNode = $this->domDocument->createElement('xsd:complexType');
+        $objXsdSchemaNode->appendChild($objProductsXsdTypeNode);
+
+        $objProductsXsdTypeSequenceNode = $this->domDocument->createElement('xsd:sequence');
+        $objProductsXsdTypeNode->appendChild($objProductsXsdTypeSequenceNode);
+
+        // add attributes
+        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeNode, 'name', 'products');
+
+        $objProductsXsdTypeProductsNode = $this->domDocument->createElement('xsd:element');
+        $objProductsXsdTypeSequenceNode->appendChild($objProductsXsdTypeProductsNode);
+
+        // add attributes
+        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'name', 'product');
+        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'type', 'product');
+        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'minOccurs', 0);
+        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'maxOccurs', "unbounded");
+    }
+
+    protected function addProductXSDTypeNode(DOMNode $objXsdSchemaNode)
+    {
+        $objProductXsdTypeNode = $this->domDocument->createElement('xsd:complexType');
+        $objXsdSchemaNode->appendChild($objProductXsdTypeNode);
+
+        $objProductXsdTypeSequenceNode = $this->domDocument->createElement('xsd:sequence');
+        $objProductXsdTypeNode->appendChild($objProductXsdTypeSequenceNode);
+
+        // add attributes
+        self::addAttributeToNode($this->domDocument, $objProductXsdTypeNode, 'name', 'product');
+        self::addAttributeToNode($this->domDocument, $objProductXsdTypeNode, 'mixed', 'true');
+
+        $objProductXsdTypeProductsNode = $this->domDocument->createElement('xsd:any');
+        $objProductXsdTypeSequenceNode->appendChild($objProductXsdTypeProductsNode);
+
+        // add attributes
+        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'namespace', '##any');
+        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'processContents', 'lax');
+        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'minOccurs', 0);
+        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'maxOccurs', "unbounded");
     }
 }

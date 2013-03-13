@@ -84,8 +84,9 @@ class tl_isotope_xml extends Backend
             // check if its an export call
             if($this->Input->post('submit_exportButton'))
             {
-                //$objIsotopeXSDGenerator = new IsotopeXSDGenerator();
-                //$objIsotopeXSDGenerator->create($dc);
+                $objIsotopeXSDGenerator = new IsotopeXSDGenerator();
+                $objIsotopeXSDGenerator->create($dc);
+                $objIsotopeXSDGenerator->save('isotope-products.xsd');
 
                 $objIsotopeXMLExport = new IsotopeXMLExport();
                 $objIsotopeXMLExport->create($dc, $this->Environment->base . 'isotope-products.xsd');
