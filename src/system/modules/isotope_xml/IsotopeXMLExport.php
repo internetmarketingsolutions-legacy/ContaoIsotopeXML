@@ -39,7 +39,7 @@ class IsotopeXMLExport extends IsotopeXML
      */
     protected $dataContainer;
 
-    public function create(DataContainer $dc)
+    public function create(DataContainer $dc, $strXSDPath)
     {
         // assign data container
         $this->dataContainer = $dc;
@@ -49,16 +49,29 @@ class IsotopeXMLExport extends IsotopeXML
         $this->domDocument->formatOutput = true;
 
         // add isotope node
-        $this->addIsotopeNode();
+        $this->addIsotopeNode($strXSDPath);
+    }
+
+    public function output($strFilename)
+    {
+        $strXML = $this->domDocument->saveXML();
+
+        ob_clean();
+
+        foreach(headers_list() as $strKey => $value)
+        {
+            header_remove($strKey);
+        }
 
         header('Content-type: text/xml');
-        header('Content-Disposition: attachment; filename="isotope-products.xml"');
+        header('Content-Disposition: attachment; filename="' . $strFilename . '"');
+        header('Content-Length: ' . mb_strlen($strXML));
 
-        echo $this->domDocument->saveXML();
+        print $strXML;
         die();
     }
 
-    protected function addIsotopeNode()
+    protected function addIsotopeNode($strXSDPath)
     {
         // define isotope node
         $objIsotopeNode = $this->domDocument->createElement('isotope');
@@ -67,7 +80,7 @@ class IsotopeXMLExport extends IsotopeXML
         // add attributes
         self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xmlns', 'http://www.isotopeecommerce.com');
         self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xsi:schemaLocation', 'http://www.isotopeecommerce.com https://shop.1-3-5.ch/contao-isotope-xml.xsd');
+        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xsi:schemaLocation', 'http://www.isotopeecommerce.com ' . $strXSDPath);
 
         $this->addProductsNode($objIsotopeNode);
     }
