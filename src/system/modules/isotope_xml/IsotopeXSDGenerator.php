@@ -330,6 +330,7 @@ class IsotopeXSDGenerator extends IsotopeXML
         self::addXsdAttributes($this->domDocument, $objFieldXsdExtension, array(
             'src' => 'xsd:string',
             'alt' => 'xsd:string',
+            'link' => 'xsd:string',
             'desc' => 'xsd:string',
             'translate' => 'xsd:string',
         ));
