@@ -65,95 +65,411 @@ class IsotopeXSDGenerator extends IsotopeXML
     protected function addXSDSchemaNode()
     {
         // define xsd schmea node
-        $objXsdSchemaNode = $this->domDocument->createElement('xsd:schema');
+        $objXsdSchema = $this->domDocument->createElement('xsd:schema');
 
         // add attributes
-        self::addAttributeToNode($this->domDocument, $objXsdSchemaNode, 'xmlns', 'http://www.isotopeecommerce.com');
-        self::addAttributeToNode($this->domDocument, $objXsdSchemaNode, 'xmlns:xsd', 'http://www.w3.org/2001/XMLSchema');
-        self::addAttributeToNode($this->domDocument, $objXsdSchemaNode, 'targetNamespace', 'http://www.isotopeecommerce.com');
-        self::addAttributeToNode($this->domDocument, $objXsdSchemaNode, 'elementFormDefault', 'qualified');
+        self::addAttributesToNode($this->domDocument, $objXsdSchema, array(
+            'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
+            'elementFormDefault' => 'qualified',
+            'attributeFormDefault' => 'unqualified',
+        ));
 
         // append node to document
-        $this->domDocument->appendChild($objXsdSchemaNode);
+        $this->domDocument->appendChild($objXsdSchema);
 
         // add isotope xsd node
-        $this->addIsotopeXSDNode($objXsdSchemaNode);
-        $this->addIsotopeXSDTypeNode($objXsdSchemaNode);
-        $this->addProductsXSDTypeNode($objXsdSchemaNode);
-        $this->addProductXSDTypeNode($objXsdSchemaNode);
+        $this->addIsotopeXSDElement($objXsdSchema);
     }
 
-    protected function addIsotopeXSDNode(DOMNode $objXsdSchemaNode)
+    /**
+     * @param DOMNode $objXsdSchema
+     */
+    protected function addIsotopeXSDElement(DOMNode $objXsdSchema)
     {
-        $objIsotopeXsdNode = $this->domDocument->createElement('xsd:element');
-        $objXsdSchemaNode->appendChild($objIsotopeXsdNode);
+        $objIsotopeXsdElement = $this->domDocument->createElement('xsd:element');
+        $objXsdSchema->appendChild($objIsotopeXsdElement);
         
         // add attributes
-        self::addAttributeToNode($this->domDocument, $objIsotopeXsdNode, 'name', 'isotope');
-        self::addAttributeToNode($this->domDocument, $objIsotopeXsdNode, 'type', 'isotope');
+        self::addAttributeToNode($this->domDocument, $objIsotopeXsdElement, 'name', 'isotope');
+
+        $objIsotopeXsdComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objIsotopeXsdElement->appendChild($objIsotopeXsdComplexType);
+
+        $objIsotopeXsdSequence = $this->domDocument->createElement('xsd:sequence');
+        $objIsotopeXsdComplexType->appendChild($objIsotopeXsdSequence);
+
+        $this->addProductsXSDElement($objIsotopeXsdSequence);
     }
 
-    protected function addIsotopeXSDTypeNode(DOMNode $objXsdSchemaNode)
+    /**
+     * @param DOMNode $objIsotopeXsdSequence
+     */
+    protected function addProductsXSDElement(DOMNode $objIsotopeXsdSequence)
     {
-        $objIsotopeXsdTypeNode = $this->domDocument->createElement('xsd:complexType');
-        $objXsdSchemaNode->appendChild($objIsotopeXsdTypeNode);
-
-        $objIsotopeXsdTypeSequenceNode = $this->domDocument->createElement('xsd:sequence');
-        $objIsotopeXsdTypeNode->appendChild($objIsotopeXsdTypeSequenceNode);
+        $objProductsXsdElement = $this->domDocument->createElement('xsd:element');
+        $objIsotopeXsdSequence->appendChild($objProductsXsdElement);
 
         // add attributes
-        self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeNode, 'name', 'isotope');
+        self::addAttributeToNode($this->domDocument, $objProductsXsdElement, 'name', 'products');
 
-        $objIsotopeXsdTypeProductsNode = $this->domDocument->createElement('xsd:element');
-        $objIsotopeXsdTypeSequenceNode->appendChild($objIsotopeXsdTypeProductsNode);
+        $objProductsXsdComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objProductsXsdElement->appendChild($objProductsXsdComplexType);
 
-        // add attributes
-        self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeProductsNode, 'name', 'products');
-        self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeProductsNode, 'type', 'products');
-        self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeProductsNode, 'minOccurs', 1);
-        self::addAttributeToNode($this->domDocument, $objIsotopeXsdTypeProductsNode, 'maxOccurs', 1);
+        $objProductsXsdSequence = $this->domDocument->createElement('xsd:sequence');
+        $objProductsXsdComplexType->appendChild($objProductsXsdSequence);
+
+        $this->addProductXSDElement($objProductsXsdSequence);
     }
 
-    protected function addProductsXSDTypeNode(DOMNode $objXsdSchemaNode)
+    /**
+     * @param DOMNode $objProductsXsdSequence
+     */
+    protected function addProductXSDElement(DOMNode $objProductsXsdSequence)
     {
-        $objProductsXsdTypeNode = $this->domDocument->createElement('xsd:complexType');
-        $objXsdSchemaNode->appendChild($objProductsXsdTypeNode);
-
-        $objProductsXsdTypeSequenceNode = $this->domDocument->createElement('xsd:sequence');
-        $objProductsXsdTypeNode->appendChild($objProductsXsdTypeSequenceNode);
+        $objProductXsdElement = $this->domDocument->createElement('xsd:element');
+        $objProductsXsdSequence->appendChild($objProductXsdElement);
 
         // add attributes
-        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeNode, 'name', 'products');
+        self::addAttributesToNode($this->domDocument, $objProductXsdElement, array(
+            'name' => 'product',
+            'minOccurs' => 0,
+            'maxOccurs' => 'unbounded',
+        ));
 
-        $objProductsXsdTypeProductsNode = $this->domDocument->createElement('xsd:element');
-        $objProductsXsdTypeSequenceNode->appendChild($objProductsXsdTypeProductsNode);
+        $objProductXsdComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objProductXsdElement->appendChild($objProductXsdComplexType);
+
+        self::addAttributeToNode($this->domDocument, $objProductXsdComplexType, 'mixed', true);
+
+        $objProductXsdSequence = $this->domDocument->createElement('xsd:sequence');
+        $objProductXsdComplexType->appendChild($objProductXsdSequence);
+
+        $this->addProductXSDElements($objProductXsdSequence);
+
+        $objAnyXsdElement = $this->domDocument->createElement('xsd:any');
+        //$objProductXsdSequence->appendChild($objAnyXsdElement);
 
         // add attributes
-        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'name', 'product');
-        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'type', 'product');
-        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'minOccurs', 0);
-        self::addAttributeToNode($this->domDocument, $objProductsXsdTypeProductsNode, 'maxOccurs', "unbounded");
+        self::addAttributesToNode($this->domDocument, $objAnyXsdElement, array(
+            'namespace' => '##any',
+            'processContents' => 'lax',
+            'minOccurs' => 0,
+            'maxOccurs' => 'unbounded',
+        ));
     }
 
-    protected function addProductXSDTypeNode(DOMNode $objXsdSchemaNode)
+    /**
+     * @param DOMNode $objProductXsdSequence
+     */
+    protected function addProductXSDElements(DOMNode $objProductXsdSequence)
     {
-        $objProductXsdTypeNode = $this->domDocument->createElement('xsd:complexType');
-        $objXsdSchemaNode->appendChild($objProductXsdTypeNode);
+        foreach($this->getFieldsPerProductTypes() as $intProductTypeid => $arrFieldsPerProductType)
+        {
+            foreach($arrFieldsPerProductType as $strFieldName => $arrFieldDefinition)
+            {
+                $strMethodName = 'prepare' . ucfirst($arrFieldDefinition['inputType']) . 'Element';
 
-        $objProductXsdTypeSequenceNode = $this->domDocument->createElement('xsd:sequence');
-        $objProductXsdTypeNode->appendChild($objProductXsdTypeSequenceNode);
+                if(method_exists($this, $strMethodName))
+                {
+                    $objProductXsdElement = call_user_func_array(
+                        array($this, $strMethodName),
+                        array(
+                            $strFieldName,
+                            $arrFieldDefinition
+                        )
+                    );
 
-        // add attributes
-        self::addAttributeToNode($this->domDocument, $objProductXsdTypeNode, 'name', 'product');
-        self::addAttributeToNode($this->domDocument, $objProductXsdTypeNode, 'mixed', 'true');
+                    $objProductXsdSequence->appendChild($objProductXsdElement);
+                }
+                else
+                {
+                    throw new Exception("Please implement method {$strMethodName} for field {$strFieldName}");
+                }
+            }
+        }
+    }
 
-        $objProductXsdTypeProductsNode = $this->domDocument->createElement('xsd:any');
-        $objProductXsdTypeSequenceNode->appendChild($objProductXsdTypeProductsNode);
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareTextElement($strFieldName, array $arrFieldDefinition)
+    {
+        $objFieldXsdElement = $this->domDocument->createElement('xsd:element');
+        self::addAttributesToNode($this->domDocument, $objFieldXsdElement, array(
+            'name' => $strFieldName,
+            'type' => 'xsd:string',
+        ));
+        return $objFieldXsdElement;
+    }
 
-        // add attributes
-        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'namespace', '##any');
-        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'processContents', 'lax');
-        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'minOccurs', 0);
-        self::addAttributeToNode($this->domDocument, $objProductXsdTypeProductsNode, 'maxOccurs', "unbounded");
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareTextareaElement($strFieldName, array $arrFieldDefinition)
+    {
+        $objFieldXsdElement = $this->domDocument->createElement('xsd:element');
+        self::addAttributesToNode($this->domDocument, $objFieldXsdElement, array(
+            'name' => $strFieldName,
+            'type' => 'xsd:string',
+        ));
+        return $objFieldXsdElement;
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareCheckboxElement($strFieldName, array $arrFieldDefinition)
+    {
+        return $this->prepareClickableElement($strFieldName, $arrFieldDefinition);
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareRadioElement($strFieldName, array $arrFieldDefinition)
+    {
+        return $this->prepareClickableElement($strFieldName, $arrFieldDefinition);
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareSelectElement($strFieldName, array $arrFieldDefinition)
+    {
+        return $this->prepareClickableElement($strFieldName, $arrFieldDefinition);
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function preparePageTreeElement($strFieldName, array $arrFieldDefinition)
+    {
+        return $this->prepareClickableElement($strFieldName, $arrFieldDefinition);
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareTimePeriodElement($strFieldName, array $arrFieldDefinition)
+    {
+        $objFieldXsdElement = $this->domDocument->createElement('xsd:element');
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdElement, 'name', $strFieldName);
+
+        $objFieldXsdComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objFieldXsdElement->appendChild($objFieldXsdComplexType);
+
+        $objFieldXsdSimpleContent = $this->domDocument->createElement('xsd:simpleContent');
+        $objFieldXsdComplexType->appendChild($objFieldXsdSimpleContent);
+
+        $objFieldXsdExtension = $this->domDocument->createElement('xsd:extension');
+        $objFieldXsdSimpleContent->appendChild($objFieldXsdExtension);
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdExtension, 'base', 'xsd:string');
+
+        self::addXsdAttributes($this->domDocument, $objFieldXsdExtension, array(
+            'unit' => 'xsd:string',
+            'value' => 'xsd:string',
+        ));
+
+        return $objFieldXsdElement;
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareMediaManagerElement($strFieldName, array $arrFieldDefinition)
+    {
+
+        $objFieldXsdElement = $this->domDocument->createElement('xsd:element');
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdElement, 'name', $strFieldName);
+
+        $objFieldXsdComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objFieldXsdElement->appendChild($objFieldXsdComplexType);
+
+        $objFieldXsdSequence = $this->domDocument->createElement('xsd:sequence');
+        $objFieldXsdComplexType->appendChild($objFieldXsdSequence);
+
+        $objFieldXsdSubElement = $this->domDocument->createElement('xsd:element');
+        $objFieldXsdSequence->appendChild($objFieldXsdSubElement);
+
+        self::addAttributesToNode($this->domDocument, $objFieldXsdSubElement, array(
+            'name' => self::englishSingular($strFieldName),
+            'minOccurs' => 0,
+            'maxOccurs' => 'unbounded',
+        ));
+
+        $objFieldXsdSubComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objFieldXsdSubElement->appendChild($objFieldXsdSubComplexType);
+
+        $objFieldXsdSimpleContent = $this->domDocument->createElement('xsd:simpleContent');
+        $objFieldXsdSubComplexType->appendChild($objFieldXsdSimpleContent);
+
+        $objFieldXsdExtension = $this->domDocument->createElement('xsd:extension');
+        $objFieldXsdSimpleContent->appendChild($objFieldXsdExtension);
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdExtension, 'base', 'xsd:string');
+
+        self::addXsdAttributes($this->domDocument, $objFieldXsdExtension, array(
+            'src' => 'xsd:string',
+            'alt' => 'xsd:string',
+            'desc' => 'xsd:string',
+            'translate' => 'xsd:string',
+        ));
+
+        return $objFieldXsdElement;
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareClickableElement($strFieldName, array $arrFieldDefinition)
+    {
+        $objFieldXsdElement = $this->domDocument->createElement('xsd:element');
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdElement, 'name', $strFieldName);
+
+        // multiple values
+        if(array_key_exists('eval', $arrFieldDefinition) &&
+           array_key_exists('multiple', $arrFieldDefinition['eval']) &&
+           $arrFieldDefinition['eval']['multiple'])
+        {
+            $arrOptions = $this->getFieldOptions($arrFieldDefinition);
+            $this->handleMultiOptions($objFieldXsdElement, $strFieldName, $arrOptions);           
+        }
+        else
+        {
+            self::addAttributeToNode($this->domDocument, $objFieldXsdElement, 'type', 'xsd:string');
+        }
+
+        return $objFieldXsdElement;
+    }
+
+    /**
+     * @param DOMNode $objFieldXsdElement
+     * @param string $strFieldName
+     * @param array $arrOptions
+     */
+    protected function handleMultiOptions(DOMNode $objFieldXsdElement, $strFieldName, array $arrOptions)
+    {
+        $boolNumeric = false;
+
+        foreach($arrOptions as $mixKey => $mixValue)
+        {
+            if(is_numeric($mixKey))
+            {
+                $boolNumeric = true;
+            }
+        }
+
+        if(!$boolNumeric)
+        {
+            $this->handleMultiOptionsWithStrinKeys($objFieldXsdElement, $arrOptions);
+        }
+        else
+        {
+            $this->handleMultiOptionsWithNumericKeys($objFieldXsdElement, $strFieldName);
+        }
+    }
+
+    /**
+     * @param DOMNode $objFieldXsdElement
+     * @param array $arrOptions
+     */
+    protected function handleMultiOptionsWithStrinKeys(DOMNode $objFieldXsdElement, array $arrOptions)
+    {
+        $objFieldXsdComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objFieldXsdElement->appendChild($objFieldXsdComplexType);
+
+        $objFieldXsdSimpleContent = $this->domDocument->createElement('xsd:simpleContent');
+        $objFieldXsdComplexType->appendChild($objFieldXsdSimpleContent);
+
+        $objFieldXsdExtension = $this->domDocument->createElement('xsd:extension');
+        $objFieldXsdSimpleContent->appendChild($objFieldXsdExtension);
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdExtension, 'base', 'xsd:string');
+
+        foreach($arrOptions as $mixKey => $mixValue)
+        {
+            $objFieldXsdAttribute = $this->domDocument->createElement('xsd:attribute');
+            $objFieldXsdExtension->appendChild($objFieldXsdAttribute);
+
+            self::addAttributeToNode($this->domDocument, $objFieldXsdAttribute, 'name', $mixKey);
+            self::addAttributeToNode($this->domDocument, $objFieldXsdAttribute, 'type', 'xsd:byte');
+        }
+    }
+
+    /**
+     * @param DOMNode $objFieldXsdElement
+     * @param string $strFieldName
+     */
+    protected function handleMultiOptionsWithNumericKeys(DOMNode $objFieldXsdElement, $strFieldName)
+    {
+        $objFieldXsdComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objFieldXsdElement->appendChild($objFieldXsdComplexType);
+
+        $objFieldXsdSequence = $this->domDocument->createElement('xsd:sequence');
+        $objFieldXsdComplexType->appendChild($objFieldXsdSequence);
+
+        $objFieldXsdSubElement = $this->domDocument->createElement('xsd:element');
+        $objFieldXsdSequence->appendChild($objFieldXsdSubElement);
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdSubElement, 'name', self::englishSingular($strFieldName));
+        self::addAttributeToNode($this->domDocument, $objFieldXsdSubElement, 'minOccurs', 0);
+        self::addAttributeToNode($this->domDocument, $objFieldXsdSubElement, 'maxOccurs', "unbounded");
+
+        $objFieldXsdSubComplexType = $this->domDocument->createElement('xsd:complexType');
+        $objFieldXsdSubElement->appendChild($objFieldXsdSubComplexType);
+
+        $objFieldXsdSimpleContent = $this->domDocument->createElement('xsd:simpleContent');
+        $objFieldXsdSubComplexType->appendChild($objFieldXsdSimpleContent);
+
+        $objFieldXsdExtension = $this->domDocument->createElement('xsd:extension');
+        $objFieldXsdSimpleContent->appendChild($objFieldXsdExtension);
+
+        self::addAttributeToNode($this->domDocument, $objFieldXsdExtension, 'base', 'xsd:string');
+
+        self::addXsdAttributes($this->domDocument, $objFieldXsdExtension, array(
+            'key' => 'xsd:integer',
+            'value' => 'xsd:string'
+        ));
+    }
+
+    /**
+     * @param DOMDocument $objDocument
+     * @param DomNode $objNode
+     * @param array $arrAttributes
+     */
+    protected static function addXsdAttributes(DOMDocument $objDocument, DomNode $objNode, array $arrAttributes)
+    {
+        foreach($arrAttributes as $strAttributeName => $strAttributeType)
+        {
+            $objFieldXsdAttribute = $objDocument->createElement('xsd:attribute');
+            $objNode->appendChild($objFieldXsdAttribute);
+
+            self::addAttributesToNode($objDocument, $objFieldXsdAttribute, array(
+                'name' => $strAttributeName,
+                'type' => $strAttributeType,
+            ));
+        }
     }
 }
