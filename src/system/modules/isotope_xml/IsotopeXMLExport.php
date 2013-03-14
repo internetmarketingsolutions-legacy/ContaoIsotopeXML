@@ -337,11 +337,11 @@ class IsotopeXMLExport extends IsotopeXML
 
             if(in_array($mixKey, $arrFieldValues))
             {
-                $objAttribute->nodeValue = true;
+                $objAttribute->nodeValue = 1;
             }
             else
             {
-                $objAttribute->nodeValue = false;
+                $objAttribute->nodeValue = 0;
             }
         }
     }
