@@ -245,4 +245,17 @@ class IsotopeXML extends Backend
         $objAttribute->value = $strAttributeValue;
         $objNode->appendChild($objAttribute);
     }
+
+    /**
+     * @param DOMDocument $objDocument
+     * @param DomNode $objNode
+     * @param array $arrAttributes
+     */
+    protected static function addAttributesToNode(DOMDocument $objDocument, DomNode $objNode, array $arrAttributes)
+    {
+        foreach($arrAttributes as $strAttributeName => $strAttributeValue)
+        {
+            self::addAttributeToNode($objDocument, $objNode, $strAttributeName, $strAttributeValue);
+        }
+    }
 }
