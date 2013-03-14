@@ -78,9 +78,10 @@ class IsotopeXMLExport extends IsotopeXML
         $this->domDocument->appendChild($objIsotopeNode);
 
         // add attributes
-        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xmlns', 'http://www.isotopeecommerce.com');
-        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-        self::addAttributeToNode($this->domDocument, $objIsotopeNode, 'xsi:schemaLocation', 'http://www.isotopeecommerce.com ' . $strXSDPath);
+        self::addAttributesToNode($this->domDocument, $objIsotopeNode, array(
+            'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+            'xsi:schemaLocation' => $strXSDPath,
+        ));
 
         $this->addProductsNode($objIsotopeNode);
     }
@@ -359,8 +360,10 @@ class IsotopeXMLExport extends IsotopeXML
                 $objSubNode = $this->domDocument->createElement(self::englishSingular($objNode->tagName));
                 $objNode->appendChild($objSubNode);
 
-                self::addAttributeToNode($this->domDocument, $objSubNode, 'key', $mixKey);
-                self::addAttributeToNode($this->domDocument, $objSubNode, 'value', $mixValue);                
+                self::addAttributesToNode($this->domDocument, $objSubNode, array(
+                    'key' => $mixKey,
+                    'value' => $mixValue,
+                ));        
             }
         }
     }
