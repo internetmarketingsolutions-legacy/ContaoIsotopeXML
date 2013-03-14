@@ -217,45 +217,6 @@ class IsotopeXMLExport extends IsotopeXML
      * @param array $arrFieldDefinition
      * @return DOMNode
      */
-    protected function prepareClickableNode($strFieldName, $mixFieldValue, array $arrFieldDefinition)
-    {
-        $objNode = $this->domDocument->createElement($strFieldName);
-
-        // options
-        $arrOptions = $this->getFieldOptions($arrFieldDefinition);
-
-        // multiple values
-        if(array_key_exists('eval', $arrFieldDefinition) &&
-           array_key_exists('multiple', $arrFieldDefinition['eval']) &&
-           $arrFieldDefinition['eval']['multiple'])
-        {
-            $arrFieldValues = unserialize($mixFieldValue);
-
-            if(is_array($arrFieldValues))
-            {
-                $this->handleMultiOptions($objNode, $arrOptions, $arrFieldValues);
-            }            
-        }
-        // single value
-        elseif(count($arrOptions))
-        {
-            $this->handleSingleOption($objNode, $arrOptions, $mixFieldValue);
-        }
-        // no opts
-        else
-        {
-            $objNode->nodeValue = $mixFieldValue;
-        }
-
-        return $objNode;      
-    }
-
-    /**
-     * @param string $strFieldName
-     * @param mixed $mixFieldValue
-     * @param array $arrFieldDefinition
-     * @return DOMNode
-     */
     protected function prepareTimePeriodNode($strFieldName, $mixFieldValue, array $arrFieldDefinition)
     {
         $objNode = $this->domDocument->createElement($strFieldName);
@@ -294,6 +255,45 @@ class IsotopeXMLExport extends IsotopeXML
         }
 
         return $objNode;
+    }
+
+    /**
+     * @param string $strFieldName
+     * @param mixed $mixFieldValue
+     * @param array $arrFieldDefinition
+     * @return DOMNode
+     */
+    protected function prepareClickableNode($strFieldName, $mixFieldValue, array $arrFieldDefinition)
+    {
+        $objNode = $this->domDocument->createElement($strFieldName);
+
+        // options
+        $arrOptions = $this->getFieldOptions($arrFieldDefinition);
+
+        // multiple values
+        if(array_key_exists('eval', $arrFieldDefinition) &&
+           array_key_exists('multiple', $arrFieldDefinition['eval']) &&
+           $arrFieldDefinition['eval']['multiple'])
+        {
+            $arrFieldValues = unserialize($mixFieldValue);
+
+            if(is_array($arrFieldValues))
+            {
+                $this->handleMultiOptions($objNode, $arrOptions, $arrFieldValues);
+            }            
+        }
+        // single value
+        elseif(count($arrOptions))
+        {
+            $this->handleSingleOption($objNode, $arrOptions, $mixFieldValue);
+        }
+        // no opts
+        else
+        {
+            $objNode->nodeValue = $mixFieldValue;
+        }
+
+        return $objNode;      
     }
 
     /**
