@@ -39,17 +39,17 @@ class IsotopeXMLExport extends IsotopeXML
      */
     protected $dataContainer;
 
-    public function create(DataContainer $dc, $strXSDPath)
+    public function create(DataContainer $dc, $strNamespace, $strXSDPath)
     {
         // assign data container
         $this->dataContainer = $dc;
 
 		// create new dom document (xml)
-        $this->domDocument = new DOMDocument('1.0', $GLOBALS['TL_CONFIG']['dbCharset']);
+        $this->domDocument = new DOMDocument('1.0');
         $this->domDocument->formatOutput = true;
 
         // add isotope node
-        $this->addIsotopeNode($strXSDPath);
+        $this->addIsotopeNode($strNamespace, $strXSDPath);
     }
 
     public function output($strFilename)
@@ -63,15 +63,15 @@ class IsotopeXMLExport extends IsotopeXML
             header_remove($strKey);
         }
 
-        header('Content-type: text/xml');
+        header('Content-type: application/xml; charset=UTF-8');
         header('Content-Disposition: attachment; filename="' . $strFilename . '"');
-        header('Content-Length: ' . mb_strlen($strXML));
+        header('Content-Length: ' . strlen($strXML));
 
         print $strXML;
         die();
     }
 
-    protected function addIsotopeNode($strXSDPath)
+    protected function addIsotopeNode($strNamespace, $strXSDPath)
     {
         // define isotope node
         $objIsotopeNode = $this->domDocument->createElement('isotope');
@@ -79,8 +79,9 @@ class IsotopeXMLExport extends IsotopeXML
 
         // add attributes
         self::addAttributesToNode($this->domDocument, $objIsotopeNode, array(
+            'xmlns' => $strNamespace,
             'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-            'xsi:schemaLocation' => $strXSDPath,
+            'xsi:schemaLocation' => $strNamespace . ' ' .$strXSDPath,
         ));
 
         $this->addProductsNode($objIsotopeNode);

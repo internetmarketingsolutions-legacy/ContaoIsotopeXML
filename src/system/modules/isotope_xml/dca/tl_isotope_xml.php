@@ -85,11 +85,15 @@ class tl_isotope_xml extends Backend
             if($this->Input->post('submit_exportButton'))
             {
                 $objIsotopeXSDGenerator = new IsotopeXSDGenerator();
-                $objIsotopeXSDGenerator->create($dc);
+                $objIsotopeXSDGenerator->create($dc, $this->Environment->base);
                 $objIsotopeXSDGenerator->save('isotope-products.xsd');
 
                 $objIsotopeXMLExport = new IsotopeXMLExport();
-                $objIsotopeXMLExport->create($dc, $this->Environment->base . 'isotope-products.xsd');
+                $objIsotopeXMLExport->create(
+                    $dc,
+                    $this->Environment->base,
+                    $this->Environment->base . 'isotope-products.xsd'
+                );
                 $objIsotopeXMLExport->output('isotope-products.xml');
             }
         }

@@ -39,17 +39,17 @@ class IsotopeXSDGenerator extends IsotopeXML
      */
     protected $dataContainer;
 
-    public function create(DataContainer $dc)
+    public function create(DataContainer $dc, $strNamespace)
     {
         // assign data container
         $this->dataContainer = $dc;
 
         // create new dom document (xml)
-        $this->domDocument = new DOMDocument('1.0', $GLOBALS['TL_CONFIG']['dbCharset']);
+        $this->domDocument = new DOMDocument('1.0');
         $this->domDocument->formatOutput = true;
 
         // add xsd schema
-        $this->addXSDSchemaNode();
+        $this->addXSDSchemaNode($strNamespace);
     }
 
     /**
@@ -62,14 +62,16 @@ class IsotopeXSDGenerator extends IsotopeXML
         $objFile->close();
     }
 
-    protected function addXSDSchemaNode()
+    protected function addXSDSchemaNode($strNamespace)
     {
         // define xsd schmea node
         $objXsdSchema = $this->domDocument->createElement('xsd:schema');
 
         // add attributes
         self::addAttributesToNode($this->domDocument, $objXsdSchema, array(
+            'xmlns' => $strNamespace,
             'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
+            'targetNamespace' => $strNamespace,
             'elementFormDefault' => 'qualified',
             'attributeFormDefault' => 'unqualified',
         ));
