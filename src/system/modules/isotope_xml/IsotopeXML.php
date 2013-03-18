@@ -258,4 +258,19 @@ class IsotopeXML extends Backend
             self::addAttributeToNode($objDocument, $objNode, $strAttributeName, $strAttributeValue);
         }
     }
+
+    /**
+     * @param array $arrFieldDefinition
+     * @return boolean
+     */
+    protected static function isMandatory(array $arrFieldDefinition)
+    {
+        if(array_key_exists('eval', $arrFieldDefinition) &&
+           array_key_exists('mandatory', $arrFieldDefinition['eval']) &&
+           $arrFieldDefinition['eval']['mandatory'])
+        {
+            return true;
+        }
+        return false;
+    }
 }
