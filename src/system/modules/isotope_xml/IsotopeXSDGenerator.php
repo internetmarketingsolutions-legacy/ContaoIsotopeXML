@@ -475,4 +475,20 @@ class IsotopeXSDGenerator extends IsotopeXML
             ));
         }
     }
+
+    /**
+     * @param DOMDocument $objDocument
+     * @param DomNode $objNode
+     * @param array $arrFieldDefinition
+     */
+    protected static function addNonMandatoryAttributes(DOMDocument $objDocument, DomNode $objNode, array $arrFieldDefinition)
+    {
+        if(!self::isMandatory($arrFieldDefinition))
+        {
+            self::addAttributesToNode($objDocument, $objNode, array(
+                'minOccurs' => '0',
+                'maxOccurs' => '1'
+            ));
+        }
+    }
 }
