@@ -203,6 +203,7 @@ class IsotopeXSDGenerator extends IsotopeXML
             'name' => $strFieldName,
             'type' => 'xsd:string',
         ));
+        self::addNonMandatoryAttributes($this->domDocument, $objFieldXsdElement, $arrFieldDefinition);
         return $objFieldXsdElement;
     }
 
@@ -218,6 +219,7 @@ class IsotopeXSDGenerator extends IsotopeXML
             'name' => $strFieldName,
             'type' => 'xsd:string',
         ));
+        self::addNonMandatoryAttributes($this->domDocument, $objFieldXsdElement, $arrFieldDefinition);
         return $objFieldXsdElement;
     }
 
@@ -288,6 +290,8 @@ class IsotopeXSDGenerator extends IsotopeXML
             'value' => 'xsd:string',
         ));
 
+        self::addNonMandatoryAttributes($this->domDocument, $objFieldXsdElement, $arrFieldDefinition);
+
         return $objFieldXsdElement;
     }
 
@@ -337,6 +341,8 @@ class IsotopeXSDGenerator extends IsotopeXML
             'translate' => 'xsd:string',
         ));
 
+        self::addNonMandatoryAttributes($this->domDocument, $objFieldXsdElement, $arrFieldDefinition);
+
         return $objFieldXsdElement;
     }
 
@@ -363,6 +369,8 @@ class IsotopeXSDGenerator extends IsotopeXML
         {
             self::addAttributeToNode($this->domDocument, $objFieldXsdElement, 'type', 'xsd:string');
         }
+
+        self::addNonMandatoryAttributes($this->domDocument, $objFieldXsdElement, $arrFieldDefinition);
 
         return $objFieldXsdElement;
     }
