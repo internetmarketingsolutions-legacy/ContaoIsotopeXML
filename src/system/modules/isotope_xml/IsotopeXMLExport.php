@@ -383,17 +383,4 @@ class IsotopeXMLExport extends IsotopeXML
             }
         } 
     }
-
-    /**
-     * @param string
-     * @return string
-     */
-    protected static function formatCData($strData)
-    {
-        return str_replace(
-            array("\r\n", "\r", "\n", '> <'),
-            array(' ', ' ', ' ', '><'),
-            $strData
-        );
-    }
 }
