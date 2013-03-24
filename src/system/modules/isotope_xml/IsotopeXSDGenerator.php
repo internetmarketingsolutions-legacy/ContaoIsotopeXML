@@ -45,7 +45,7 @@ class IsotopeXSDGenerator extends IsotopeXML
         $this->dataContainer = $dc;
 
         // create new dom document (xml)
-        $this->domDocument = new DOMDocument('1.0');
+        $this->domDocument = new DOMDocument('1.0', self::getConfiguredEncoding());
         $this->domDocument->formatOutput = true;
 
         // add xsd schema

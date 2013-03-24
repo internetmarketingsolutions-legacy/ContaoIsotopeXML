@@ -273,4 +273,15 @@ class IsotopeXML extends Backend
         }
         return false;
     }
+
+    protected static function getConfiguredEncoding()
+    {
+        switch($GLOBALS['TL_CONFIG']['dbCharset'])
+        {
+            case 'UTF8':
+                return 'UTF-8';
+            default:
+                return $GLOBALS['TL_CONFIG']['dbCharset'];
+        }
+    }
 }
