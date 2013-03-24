@@ -242,7 +242,7 @@ class IsotopeXML extends Backend
     protected static function addAttributeToNode(DOMDocument $objDocument, DomNode $objNode, $strAttributeName, $strAttributeValue)
     {
         $objAttribute = $objDocument->createAttribute($strAttributeName);
-        $objAttribute->value = $strAttributeValue;
+        self::addNodeValue($objDocument, $objAttribute, $strAttributeValue);
         $objNode->appendChild($objAttribute);
     }
 
@@ -272,6 +272,21 @@ class IsotopeXML extends Backend
             return true;
         }
         return false;
+    }
+
+    protected static function addNodeValue(DOMDocument $objDocument, DomNode $objNode, $strText)
+    {
+        $strText = str_replace('&', '&amp;', $strText);
+
+        if($strText == strip_tags($strText))
+        {
+            $objNode->nodeValue = $strText;
+        }
+        else
+        {
+            $objCdataSection = $objDocument->createCDATASection($strText);
+            $objNode->appendChild($objCdataSection);
+        }
     }
 
     protected static function getConfiguredEncoding()

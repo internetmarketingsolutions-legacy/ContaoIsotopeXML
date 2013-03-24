@@ -150,7 +150,7 @@ class IsotopeXMLExport extends IsotopeXML
     protected function prepareTextNode($strFieldName, $mixFieldValue, array $arrFieldDefinition)
     {
         $objNode = $this->domDocument->createElement($strFieldName);
-        $objNode->nodeValue = $mixFieldValue;
+        self::addNodeValue($this->domDocument, $objNode, $mixFieldValue);
         return $objNode;
     }
 
@@ -163,8 +163,7 @@ class IsotopeXMLExport extends IsotopeXML
     protected function prepareTextareaNode($strFieldName, $mixFieldValue, array $arrFieldDefinition)
     {
         $objNode = $this->domDocument->createElement($strFieldName);
-        $objCdataSection = $this->domDocument->createCDATASection(self::formatCData($mixFieldValue));
-        $objNode->appendChild($objCdataSection);
+        self::addNodeValue($this->domDocument, $objNode, $mixFieldValue);
         return $objNode;
     }
 
